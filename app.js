@@ -1,43 +1,74 @@
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
+var mongoose = require("mongoose")
 
+mongoose.connect("mongodb://localhost/app_camp")
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
-var campgrounds = [
-      {name: "Salmon Creek", image: "https://images.pexels.com/photos/939723/pexels-photo-939723.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Granite Hill", image: "https://images.pexels.com/photos/1061640/pexels-photo-1061640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Mountain Goat's Rest", image: "https://images.pexels.com/photos/756780/pexels-photo-756780.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Salmon Creek", image: "https://images.pexels.com/photos/939723/pexels-photo-939723.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Granite Hill", image: "https://images.pexels.com/photos/1061640/pexels-photo-1061640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Mountain Goat's Rest", image: "https://images.pexels.com/photos/756780/pexels-photo-756780.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Salmon Creek", image: "https://images.pexels.com/photos/939723/pexels-photo-939723.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Granite Hill", image: "https://images.pexels.com/photos/1061640/pexels-photo-1061640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"},
-      {name: "Mountain Goat's Rest", image: "https://images.pexels.com/photos/756780/pexels-photo-756780.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"}
-];
+// SCHEMA SETUP
+var campgroundSchema = mongoose.Schema({
+  name: String,
+  image: String,
+  description: String
+});
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+Campground.create(
+  { 
+    name: "Granite Hill", 
+    image: "https://images.pexels.com/photos/1061640/pexels-photo-1061640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+    description: "This is a huge granite hill."
+
+  }, 
+  function(err, campground){
+    if(err){
+      console.log(err);
+    } else {
+      console.log("NEWLY CREATED CAMPGROUND: ");
+      console.log(campground);
+    }
+  });
+
 
 app.get("/", function(req, res){
   res.render("landing");
 });
 
 app.get("/campgrounds", function(req, res){
-  
-
-  res.render("campgrounds", {campgrounds: campgrounds});
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);  
+    } else {
+      res.render("campgrounds", {campgrounds:allCampgrounds});
+    }
+  });
 });
 
+//CREATE
 app.post("/campgrounds", function(req, res){
   var name = req.body.name;
   var image = req.body.image;
   var newCampground = {name: name, image: image}
-  campgrounds.push(newCampground);
 
-  res.redirect("/campgrounds");
-});
+  Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+  });
 
+//NEW - 
 app.get("/campgrounds/new", function(req, res){
   res.render("new.ejs");
 });
+
+app.get("/campgrounds/:id", function(req, res){
+  res.send("THIS WILL BE THE SHOW PAGE ONE DAY")
+})
 
 app.listen(3000, () => console.log("The Server has Started"))
