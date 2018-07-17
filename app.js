@@ -16,21 +16,21 @@ var campgroundSchema = mongoose.Schema({
 
 var Campground = mongoose.model("Campground", campgroundSchema);
 
-Campground.create(
-  { 
-    name: "Granite Hill", 
-    image: "https://images.pexels.com/photos/1061640/pexels-photo-1061640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-    description: "This is a huge granite hill."
+// Campground.create(
+//   { 
+//     name: "Granite Hill", 
+//     image: "https://images.pexels.com/photos/1061640/pexels-photo-1061640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+//     description: "This is a huge granite hill."
 
-  }, 
-  function(err, campground){
-    if(err){
-      console.log(err);
-    } else {
-      console.log("NEWLY CREATED CAMPGROUND: ");
-      console.log(campground);
-    }
-  });
+//   }, 
+//   function(err, campground){
+//     if(err){
+//       console.log(err);
+//     } else {
+//       console.log("NEWLY CREATED CAMPGROUND: ");
+//       console.log(campground);
+//     }
+//   });
 
 
 app.get("/", function(req, res){
@@ -42,7 +42,7 @@ app.get("/campgrounds", function(req, res){
     if(err){
       console.log(err);  
     } else {
-      res.render("campgrounds", {campgrounds:allCampgrounds});
+      res.render("index", {campgrounds:allCampgrounds});
     }
   });
 });
@@ -51,7 +51,8 @@ app.get("/campgrounds", function(req, res){
 app.post("/campgrounds", function(req, res){
   var name = req.body.name;
   var image = req.body.image;
-  var newCampground = {name: name, image: image}
+  var desc = req.body.description;
+  var newCampground = {name: name, image: image, description: desc}
 
   Campground.create(newCampground, function(err, newlyCreated){
       if(err){
@@ -68,7 +69,20 @@ app.get("/campgrounds/new", function(req, res){
 });
 
 app.get("/campgrounds/:id", function(req, res){
-  res.send("THIS WILL BE THE SHOW PAGE ONE DAY")
+  Campground.findById(req.params.id, function(err, foundCampground){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("show", {campground: foundCampground});
+    }
+  });
 })
 
 app.listen(3000, () => console.log("The Server has Started"))
+
+
+
+
+
+
+
